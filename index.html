@@ -1,0 +1,480 @@
+<!doctype html>
+<!--
+  Farid Seekh Kabab Center — website
+
+  Folder structure
+    index.html              page content (this file)
+    css/
+      styles.css            layout, colours and every section
+      effects.css           extra animations & 3D effects
+    js/                     loaded in this order (all "defer")
+      vendor/lenis.min.js   smooth-scroll library (saved locally, v1.1.13)
+      core.js               shared helpers + one animation loop, open/closed status, menu, scroll reveal
+      fire.js               embers, smoke and flames
+      sections.js           marquee, hero tilt, plate, craft, how-to-eat
+      effects.js            ember headline, heat shimmer pause, cursor trail, smooth scrolling
+      sound.js              sizzle sound button
+    manifest.webmanifest    "install as app" details: name, icons, colours, shortcuts
+    sw.js                   offline support for the installed app (bump VERSION after edits)
+    images/
+      icons/                    app & browser icons (192, 512, maskable, iPhone, favicon)
+      plate.jpg / .webp         food photo, full size (1360px)
+      plate-800.jpg / .webp     smaller copy for phones
+      og-share.jpg              preview image when the link is shared
+
+  Search for "TODO" to find the one thing to fill in once the site is online.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Farid Seekh Kabab Center · Jogeshwari West, Mumbai</title>
+<meta name="description" content="Farid Seekh Kabab Center, Jogeshwari West, Mumbai. Since 1992. Open daily 5 PM to 1 AM. Seekh kabab and paratha with green chutney, onion, lemon and mint. Call 079777 63243.">
+<meta name="theme-color" content="#0e0b09">
+
+<!-- ===== SHARE PREVIEW (WhatsApp, Facebook, X, etc.) =====
+     TODO: once the site is online, replace https://YOUR-WEBSITE.com below with the real address.
+     WhatsApp needs the full address to show the photo. -->
+<meta property="og:type" content="restaurant">
+<meta property="og:site_name" content="Farid Seekh Kabab Center">
+<meta property="og:title" content="Farid Seekh Kabab Center · Jogeshwari West, Mumbai · Since 1992">
+<meta property="og:description" content="Seekh kabab &amp; paratha in Jogeshwari West, Mumbai. Open daily 5 PM – 1 AM. Call 079777 63243.">
+<meta property="og:image" content="https://YOUR-WEBSITE.com/images/og-share.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="Farid Seekh Kabab Center — seekh kabab and paratha in Jogeshwari West, Mumbai">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://YOUR-WEBSITE.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Farid Seekh Kabab Center | Since 1992">
+<meta name="twitter:description" content="Seekh kabab and paratha in Jogeshwari West, Mumbai. Open daily 5 PM to 1 AM. Call 079777 63243.">
+<meta name="twitter:image" content="https://YOUR-WEBSITE.com/images/og-share.jpg">
+<meta name="twitter:image:alt" content="Farid Seekh Kabab Center — seekh kabab and paratha in Jogeshwari West, Mumbai">
+<link rel="canonical" href="https://YOUR-WEBSITE.com/">
+
+<!-- ===== GOOGLE BUSINESS DETAILS (structured data) =====
+     Invisible to visitors. Tells Google this is a restaurant, with its address, phone and hours. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": "Farid Seekh Kabab Center",
+  "areaServed": "Jogeshwari West, Mumbai",
+  "description": "Seekh kabab and paratha with green chutney, onion, lemon and mint. Same taste since 1992.",
+  "foundingDate": "1992",
+  "servesCuisine": ["Mughlai", "Street Food", "Kebabs"],
+  "telephone": "+91-7977763243",
+  "image": "https://YOUR-WEBSITE.com/images/og-share.jpg",
+  "hasMap": "https://maps.app.goo.gl/frSoAbdjBSrin9GJ7",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Shop No 13, Kismat Compound, Patliputra, Behram Baug, Jogeshwari West",
+    "addressLocality": "Mumbai",
+    "addressRegion": "Maharashtra",
+    "postalCode": "400102",
+    "addressCountry": "IN"
+  },
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "opens": "17:00",
+    "closes": "01:00"
+  }]
+}
+</script>
+<!-- ===== ICONS & "INSTALL AS APP" =====
+     manifest.webmanifest describes the app (name, icons, colours, shortcuts);
+     sw.js adds offline support. iPhones use the apple-* tags below. -->
+<link rel="icon" type="image/png" sizes="32x32" href="images/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="images/icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Farid Kabab">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;0,9..144,900;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Page styles -->
+<link rel="stylesheet" href="css/styles.css">
+<!-- Extra animations & 3D effects -->
+<link rel="stylesheet" href="css/effects.css">
+
+<!-- Start downloading the hero photo straight away (phones get the smaller one) -->
+<link rel="preload" as="image" type="image/webp"
+      imagesrcset="images/plate-800.webp 800w, images/plate.webp 1360w" imagesizes="100vw">
+
+<!-- Scripts: "defer" downloads them in parallel and runs them in order once the page is parsed -->
+<script defer src="js/vendor/lenis.min.js"></script>
+<script defer src="js/core.js"></script>
+<script defer src="js/fire.js"></script>
+<script defer src="js/sections.js"></script>
+<script defer src="js/effects.js"></script>
+<script defer src="js/sound.js"></script>
+</head>
+<body>
+<!-- Fire behind the whole site (fixed to the screen):
+     flames flicker along the bottom edge, embers rise across the page (js/fire.js) -->
+<canvas class="fire-layer" id="flames" aria-hidden="true"></canvas>
+<canvas class="fire-layer" id="fireEmbers" aria-hidden="true"></canvas>
+
+<!-- Heat-shimmer filter, used on the hero photo (desktop). The noise slowly changes,
+     which makes the photo ripple slightly like hot air above the tawa. -->
+<svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="heat" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.006 0.035" numOctaves="1" seed="7" result="noise">
+      <animate attributeName="baseFrequency" dur="7s" values="0.006 0.035;0.008 0.045;0.006 0.035" repeatCount="indefinite"/>
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<!-- Glowing ember that follows the mouse, plus its spark trail (desktop only) -->
+<canvas id="cursorTrail" aria-hidden="true"></canvas>
+<div class="cursor-ember" id="cursorEmber" aria-hidden="true"></div>
+
+<!-- Film-grain texture over the whole page -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav" id="nav" aria-label="Main">
+  <a href="#top" class="brand">Farid <i>Seekh Kabab</i></a>
+  <!-- Page links: a row on desktop, a drop-down panel on phones -->
+  <ul id="navLinks">
+    <li><a href="#plate">The Plate</a></li>
+    <li><a href="#craft">Craft</a></li>
+    <li><a href="#ritual">How to Eat</a></li>
+    <li class="nav-mobile-only"><a href="#visit">Visit &amp; Contact</a></li>
+    <!-- Shown by js/core.js only when this browser can install the site as an app -->
+    <li class="nav-install" hidden><button type="button" class="install-btn">Install app</button></li>
+  </ul>
+  <div class="nav-actions">
+    <a class="pill-cta" href="#visit">Find us</a>
+    <!-- Menu button: phones only (three lines that turn into an X when open) -->
+    <button class="burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero" id="top">
+  <div class="hero-media" id="heroMedia">
+    <!-- WebP where supported (smaller), JPG otherwise; phones get the 800px version -->
+    <picture>
+      <source type="image/webp" srcset="images/plate-800.webp 800w, images/plate.webp 1360w" sizes="100vw">
+      <img src="images/plate.jpg" srcset="images/plate-800.jpg 800w, images/plate.jpg 1360w" sizes="100vw"
+           width="1360" height="1020" fetchpriority="high" decoding="async"
+           alt="Two seekh kebabs with lemons, a golden paratha, fresh mint and green chutney with sliced onion, served on steel plates">
+    </picture>
+  </div>
+  <div class="hero-scrim"></div>
+  <canvas id="embers" aria-hidden="true"></canvas>
+  <div class="wrap hero-inner">
+    <!-- Live open/closed status (Mumbai time), filled in by js/core.js -->
+    <span class="open-pill rise d1" id="heroOpen" hidden></span>
+    <!-- Phones show only the location here ("Since 1992" is in the numbers below) -->
+    <span class="eyebrow rise d1"><span class="hide-sm">Since 1992 · Farid Seekh Kabab Center · </span>Jogeshwari West, Mumbai</span>
+    <!-- "Charred outside." is split into letters by effects.js; each letter glows hot then cools -->
+    <h1 id="heroTitle"><span class="ember-text">Charred outside.</span> <em class="rise d4">Soft within.</em></h1>
+    <p class="lede rise d3">The same taste since 1992, passed down through generations. We make one plate and nothing else. Seekh kebab hot off the tawa, paratha fried to order, sharp green chutney, raw onion, lemon and a fistful of mint.</p>
+    <div class="hero-row rise d4">
+      <a href="#plate" class="btn btn-fire">See the plate
+        <span class="chip"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <a href="#visit" class="btn btn-glass">Find Farid</a>
+    </div>
+    <div class="hero-meta rise d5">
+      <!-- .years-count is filled in by js/core.js (current year minus 1992) -->
+      <div><b>1992</b>serving since</div>
+      <div><b><span class="years-count">34</span>+ yrs</b>same taste</div>
+      <div><b>5 PM–1 AM</b>open daily</div>
+    </div>
+  </div>
+  <div class="scroll-cue" aria-hidden="true">Scroll</div>
+</header>
+
+<!-- ===== MARQUEE: two crossing bands of words =====
+     js/sections.js moves them in opposite directions and speeds them up while you scroll -->
+<div class="marquee" aria-hidden="true">
+  <div class="band band-a"><div class="track" data-dir="-1">
+    <span>Seekh <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Paratha <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Hari Chutney <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Nimbu <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Pyaaz <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Pudina <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+  </div></div>
+  <div class="band band-b"><div class="track" data-dir="1">
+    <span>Seekh <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Paratha <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Hari Chutney <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Nimbu <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Pyaaz <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+    <span>Pudina <svg viewBox="0 0 80 30"><line x1="2" y1="15" x2="78" y2="15" stroke="#c9c2b8" stroke-width="2.4" stroke-linecap="round"/><circle cx="6" cy="15" r="4" fill="none" stroke="#c9c2b8" stroke-width="2"/><rect x="20" y="7" width="46" height="16" rx="8" fill="#9a4a1c"/><rect x="24" y="9" width="30" height="4" rx="2" fill="#c9733a" opacity=".6"/></svg></span>
+  </div></div>
+</div>
+
+<!-- ===== THE PLATE: one big photo, a label on each item ===== -->
+<section class="block plate" id="plate">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow reveal">What's on the plate</span>
+      <h2 class="h2 reveal d2">Five things. <em>One plate.</em></h2>
+      <p class="sub reveal d3"><span class="hide-sm">Hover over or tap a label to see what it is.</span><span class="show-sm">Each number on the photo matches the list below.</span></p>
+    </div>
+
+    <!-- Wide photo with a label on each item. Hover/tap a label to open its description.
+         --x / --y   = label position on desktop (photo cropped to 16:9)
+         --mx / --my = label position on phones (full 4:3 photo) -->
+    <!-- .plate-stage gives the photo 3D perspective; effects.js tilts it flat as you scroll -->
+    <div class="plate-stage" id="plateStage">
+    <div class="plate-map" id="plateMap">
+      <picture>
+        <source type="image/webp" srcset="images/plate-800.webp 800w, images/plate.webp 1360w" sizes="(max-width: 860px) 100vw, 1144px">
+        <img src="images/plate.jpg" srcset="images/plate-800.jpg 800w, images/plate.jpg 1360w" sizes="(max-width: 860px) 100vw, 1144px"
+             width="1360" height="1020" loading="lazy" decoding="async"
+             alt="The full seekh paratha plate: seekh kebabs, paratha, green chutney with onion, lemon and mint">
+      </picture>
+      <button class="tag" type="button" data-i="0" style="--n:0; --x:62%; --y:76.7%; --mx:62%; --my:70%" aria-expanded="false">
+        <b>1</b><span class="tag-name">Seekh Kebab</span>
+        <span class="tag-desc">Crisp, dark crust and a juicy middle. Two per plate.</span>
+      </button>
+      <button class="tag" type="button" data-i="1" style="--n:1; --x:42%; --y:13%; --mx:42%; --my:22%" aria-expanded="false">
+        <b>2</b><span class="tag-name">Paratha</span>
+        <span class="tag-desc">Fried to order, golden and flaky.</span>
+      </button>
+      <button class="tag tag-left" type="button" data-i="2" style="--n:2; --x:80%; --y:28.7%; --mx:80%; --my:34%" aria-expanded="false">
+        <b>3</b><span class="tag-name">Chutney &amp; Onion</span>
+        <span class="tag-desc">Tangy green chutney under raw onion rings.</span>
+      </button>
+      <button class="tag tag-left" type="button" data-i="3" style="--n:3; --x:49%; --y:52.7%; --mx:49%; --my:52%" aria-expanded="false">
+        <b>4</b><span class="tag-name">Lemon</span>
+        <span class="tag-desc">Squeeze it over the hot seekh.</span>
+      </button>
+      <button class="tag" type="button" data-i="4" style="--n:4; --x:16%; --y:71.3%; --mx:16%; --my:66%" aria-expanded="false">
+        <b>5</b><span class="tag-name">Mint</span>
+        <span class="tag-desc">Fresh leaves to cool every bite.</span>
+      </button>
+    </div>
+    </div><!-- /.plate-stage -->
+
+    <!-- Phones only: the five items as a simple numbered list under the photo -->
+    <ol class="plate-list">
+      <li><b>1</b><div><h3>Seekh Kebab</h3><p>Crisp, dark crust and a juicy middle. Two per plate.</p></div></li>
+      <li><b>2</b><div><h3>Paratha</h3><p>Fried to order, golden and flaky.</p></div></li>
+      <li><b>3</b><div><h3>Chutney &amp; Onion</h3><p>Tangy green chutney under raw onion rings.</p></div></li>
+      <li><b>4</b><div><h3>Lemon</h3><p>Squeeze it over the hot seekh.</p></div></li>
+      <li><b>5</b><div><h3>Mint</h3><p>Fresh leaves to cool every bite.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===== CRAFT ===== -->
+<section class="block" id="craft">
+  <div class="wrap craft-grid">
+    <div>
+      <span class="eyebrow reveal">Since 1992</span>
+      <h2 class="h2 reveal d2">Same taste, <em>for generations.</em></h2>
+      <p class="sub reveal d3">For <span class="years-count">34</span>+ years the recipe hasn't changed. Families from Jogeshwari and across Mumbai who ate here as kids now bring their own. One plate, done the same way every night.</p>
+
+      <!-- Year counter: rolls from 1992 up to this year when it scrolls into view (effects.js) -->
+      <div class="year-roll reveal d3" id="yearRoll">
+        <span class="yr-num">1992</span>
+        <span class="yr-arrow" aria-hidden="true">→</span>
+        <span class="yr-num yr-now" id="yrNow" data-from="1992">1992</span>
+        <span class="yr-label"><b><span class="years-count">34</span>+ years</b>same taste</span>
+      </div>
+      <ul class="beats">
+        <li class="reveal d2"><span class="k">i.</span><div><h3>Mince &amp; spice</h3><p>The meat is minced, seasoned and rested before it ever sees heat.</p></div></li>
+        <li class="reveal d3"><span class="k">ii.</span><div><h3>Press on the skewer</h3><p>Shaped by hand, long and even, so it cooks right through.</p></div></li>
+        <li class="reveal d4"><span class="k">iii.</span><div><h3>Sear till it crackles</h3><p>High heat until the outside turns deep brown and the edges crisp.</p></div></li>
+      </ul>
+    </div>
+
+    <!-- Real close-up of the seekh from the photo, with live embers drawn on top -->
+    <figure class="art reveal d2" id="craftArt">
+      <!-- Full size only: this photo is shown zoomed in, so it needs every pixel -->
+      <picture>
+        <source type="image/webp" srcset="images/plate.webp">
+        <img class="art-photo" src="images/plate.jpg" width="1360" height="1020" loading="lazy" decoding="async" alt="Close-up of two seared seekh kebabs">
+      </picture>
+      <div class="art-glow"></div>
+      <canvas id="embers3" aria-hidden="true"></canvas>
+      <figcaption class="art-tag">Off the tawa</figcaption>
+      <!-- Heritage stamp in the corner of the photo -->
+      <div class="stamp" aria-hidden="true"><small>Since</small>1992</div>
+    </figure>
+  </div>
+</section>
+
+<!-- ===== RITUAL ===== -->
+<section class="block" id="ritual">
+  <div class="wrap">
+    <span class="eyebrow reveal">The house way</span>
+    <h2 class="h2 reveal d2">How to eat <em>it.</em></h2>
+    <p class="sub reveal d3">Four steps. Watch them play out, or hover/tap a card to see it again.</p>
+    <!-- Each card's icon animates once when it scrolls into view (one after another).
+         Hover or tap a card to replay. Animations are in styles.css section 17. -->
+    <!-- Progress line (desktop): fills from card 1 to card 4 as each one plays -->
+    <div class="ritual-track" id="ritualTrack" aria-hidden="true">
+      <span class="ritual-fill"></span><i></i><i></i><i></i><i></i>
+    </div>
+    <!-- Cards start face-down (showing their number) and flip over in turn -->
+    <div class="ritual-grid">
+      <div class="step reveal" data-step>
+        <div class="step-back" aria-hidden="true"><b>1</b><small>Squeeze</small></div>
+        <span class="big">1</span>
+        <!-- Lemon squeezes, juice drops fall onto the seekh -->
+        <svg class="anim" viewBox="0 0 72 72" fill="none">
+          <rect x="12" y="58" width="48" height="10" rx="5" fill="#9a4a1c"/>
+          <rect x="16" y="60" width="30" height="3" rx="1.5" fill="#c9733a" opacity=".6"/>
+          <g class="sq-lemon">
+            <circle cx="36" cy="24" r="18" fill="#d7e36a"/>
+            <circle cx="36" cy="24" r="14" fill="#eef4a8"/>
+            <path d="M36 10v28M22 24h28M26 14l20 20M46 14L26 34" stroke="#c7d24e" stroke-width="1.5"/>
+          </g>
+          <g fill="#f3f7b0">
+            <path class="sq-drop" d="M30 44c0-2.5 2.5-5 2.5-5s2.5 2.5 2.5 5a2.5 2.5 0 0 1-5 0z"/>
+            <path class="sq-drop sq-drop-2" d="M38 44c0-2.5 2.5-5 2.5-5s2.5 2.5 2.5 5a2.5 2.5 0 0 1-5 0z"/>
+            <path class="sq-drop sq-drop-3" d="M34 44c0-2.5 2.5-5 2.5-5s2.5 2.5 2.5 5a2.5 2.5 0 0 1-5 0z"/>
+          </g>
+        </svg>
+        <h3>Squeeze</h3><p>Lemon over the seekh while it's still hot.</p>
+      </div>
+      <div class="step reveal d2" data-step>
+        <div class="step-back" aria-hidden="true"><b>2</b><small>Tear</small></div>
+        <span class="big">2</span>
+        <!-- Paratha tears into two halves -->
+        <svg class="anim" viewBox="0 0 72 72" fill="none">
+          <g class="tr-left">
+            <path d="M36 12A24 24 0 0 0 36 60L39 54L34 48L39 42L34 36L39 30L34 24L39 18Z" fill="#d9a35a" stroke="#a8692a" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="24" cy="28" r="3" fill="#b8742f"/><circle cx="22" cy="44" r="2.2" fill="#b8742f"/><circle cx="30" cy="52" r="1.8" fill="#b8742f"/>
+          </g>
+          <g class="tr-right">
+            <path d="M36 12L39 18L34 24L39 30L34 36L39 42L34 48L39 54L36 60A24 24 0 0 0 36 12Z" fill="#d9a35a" stroke="#a8692a" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="48" cy="26" r="2.4" fill="#b8742f"/><circle cx="50" cy="42" r="3" fill="#b8742f"/><circle cx="44" cy="52" r="1.8" fill="#b8742f"/>
+          </g>
+        </svg>
+        <h3>Tear</h3><p>A piece of paratha, big enough to wrap a bite.</p>
+      </div>
+      <div class="step reveal d3" data-step>
+        <div class="step-back" aria-hidden="true"><b>3</b><small>Load</small></div>
+        <span class="big">3</span>
+        <!-- Seekh on paratha; onion rings and mint drop on top -->
+        <svg class="anim" viewBox="0 0 72 72" fill="none">
+          <ellipse cx="36" cy="58" rx="28" ry="7" fill="#d9a35a"/>
+          <ellipse cx="36" cy="57" rx="28" ry="6" stroke="#a8692a" stroke-width="1.2"/>
+          <rect x="16" y="44" width="40" height="11" rx="5.5" fill="#9a4a1c"/>
+          <rect x="20" y="46" width="24" height="3" rx="1.5" fill="#c9733a" opacity=".6"/>
+          <ellipse class="ld-onion" cx="26" cy="41" rx="8" ry="3.5" stroke="#e7c3d6" stroke-width="2.2"/>
+          <ellipse class="ld-onion ld-onion-2" cx="42" cy="40" rx="7" ry="3" stroke="#e7c3d6" stroke-width="2.2"/>
+          <path class="ld-mint" d="M44 36c3-7 11-7 11-7s-1 8-9 9z" fill="#8fd47a"/>
+          <path class="ld-mint ld-mint-2" d="M30 36c-4-6-11-5-11-5s2 7 10 7z" fill="#76c262"/>
+        </svg>
+        <h3>Load</h3><p>Seekh, a few onion rings, two or three mint leaves.</p>
+      </div>
+      <div class="step reveal d4" data-step>
+        <div class="step-back" aria-hidden="true"><b>4</b><small>Dip</small></div>
+        <span class="big">4</span>
+        <!-- Wrap dips into the chutney bowl, ripple spreads -->
+        <svg class="anim" viewBox="0 0 72 72" fill="none">
+          <g class="dp-wrap">
+            <rect x="31" y="4" width="12" height="34" rx="6" fill="#d9a35a" stroke="#a8692a" stroke-width="1.2" transform="rotate(14 37 21)"/>
+            <rect x="33" y="10" width="8" height="5" rx="2.5" fill="#9a4a1c" transform="rotate(14 37 21)"/>
+          </g>
+          <path d="M8 46h56a28 16 0 0 1-56 0z" fill="#5d7a22"/>
+          <ellipse cx="36" cy="46" rx="28" ry="6" fill="#8fae3a"/>
+          <ellipse class="dp-ripple" cx="38" cy="46" rx="8" ry="2" stroke="#c9dc7a" stroke-width="1.5"/>
+        </svg>
+        <h3>Dip</h3><p>Into the green chutney. Eat. Repeat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VISIT ===== -->
+<section class="visit" id="visit">
+  <div class="wrap">
+    <span class="eyebrow reveal">Come hungry<span class="hide-sm"> · Jogeshwari West, Mumbai</span></span>
+    <h2 class="h2 reveal d2">The tawa is <em class="hot-word">hot.<span class="sparks" aria-hidden="true"><i style="--x:10%;--d:0s"></i><i style="--x:30%;--d:.6s"></i><i style="--x:48%;--d:1.2s"></i><i style="--x:62%;--d:.3s"></i><i style="--x:78%;--d:.9s"></i><i style="--x:90%;--d:1.5s"></i></span></em></h2>
+    <p class="sub reveal d3">Every night from 5 PM till 1 AM in Jogeshwari West, Mumbai. Pull up a stool, order the seekh paratha, and don't skip the mint.</p>
+    <div class="hero-row reveal d4">
+      <a class="btn btn-fire" href="https://maps.app.goo.gl/frSoAbdjBSrin9GJ7" target="_blank" rel="noopener">Get directions
+        <span class="chip"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 12L12 4M6 4h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <a class="btn btn-glass" href="tel:+917977763243">Call 079777 63243</a>
+    </div>
+    <div class="info-row">
+      <!-- Address: the link opens the shop's Google Maps listing -->
+      <div class="info info-wide reveal">
+        <div class="label">Where</div>
+        <address class="v">Shop No 13, Kismat Compound, Patliputra,<br>Behram Baug, Jogeshwari West,<br>Mumbai, Maharashtra 400102</address>
+        <a class="map-link" href="https://maps.app.goo.gl/frSoAbdjBSrin9GJ7" target="_blank" rel="noopener">Open in Google Maps ↗</a>
+      </div>
+      <!-- Phone: tap to call on mobile -->
+      <div class="info reveal d2">
+        <div class="label">Call to order</div>
+        <a class="v" href="tel:+917977763243">079777 63243</a>
+      </div>
+      <!-- Hours: the "Open now / Closed" badge is set by js/core.js using Mumbai time -->
+      <div class="info reveal d3">
+        <div class="label">Open daily</div>
+        <div class="v">5 PM – 1 AM</div>
+        <span class="open-badge" id="openBadge">Open daily</span>
+      </div>
+    </div>
+
+    <!-- Map of the shop. Dark look comes from a CSS filter on the map (see styles.css section 16). -->
+    <div class="map-card reveal">
+      <iframe
+        src="https://maps.google.com/maps?q=Farid%20Seekh%20Kabab%20Center%2C%20Kismat%20Compound%2C%20Behram%20Baug%2C%20Jogeshwari%20West%2C%20Mumbai%20400102&amp;z=16&amp;output=embed"
+        title="Map showing Farid Seekh Kabab Center, Jogeshwari West, Mumbai"
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      <a class="map-open" href="https://maps.app.goo.gl/frSoAbdjBSrin9GJ7" target="_blank" rel="noopener">Open in Google Maps ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr"></span> Farid Seekh Kabab Center · Jogeshwari West, Mumbai · <a href="tel:+917977763243">079777 63243</a></span>
+    <span>Since 1992 · Open daily 5 PM – 1 AM<span class="footer-install" hidden> · <button type="button" class="install-btn link-btn">Install app</button></span></span>
+  </div>
+</footer>
+
+<!-- ===== "ADD TO HOME SCREEN" HOW-TO (iPhone/iPad Safari, which has no install button) ===== -->
+<div class="install-tip" id="installTip" role="dialog" aria-modal="true" aria-labelledby="installTitle" hidden>
+  <div class="install-card">
+    <button type="button" class="install-close" id="installClose" aria-label="Close">×</button>
+    <img src="images/icons/icon-192.png" width="64" height="64" alt="" class="install-icon">
+    <h2 id="installTitle">Add Farid Kabab to your home screen</h2>
+    <ol>
+      <li>Tap the <b>Share</b> button
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Share icon"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>
+        in Safari</li>
+      <li>Scroll and tap <b>Add to Home Screen</b></li>
+      <li>Tap <b>Add</b>. It opens full-screen, like an app.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ===== WHATSAPP: round button fixed to the bottom-right corner on every page ===== -->
+<a class="wa-float" href="https://wa.me/917977763243?text=Hi%20Farid%20Seekh%20Kabab%20Center%2C%20I%27d%20like%20to%20order." target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
+  <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M16.04 3C9.4 3 4 8.36 4 14.97c0 2.33.67 4.5 1.84 6.35L4 29l7.9-1.8a12.1 12.1 0 0 0 4.14.73C22.67 27.93 28 22.57 28 15.97 28 9.36 22.67 3 16.04 3Zm0 22.73c-1.3 0-2.58-.24-3.78-.72l-.54-.22-4.69 1.07 1.1-4.48-.36-.58a9.9 9.9 0 0 1-1.54-5.33c0-5.46 4.4-9.9 9.81-9.9 5.42 0 9.82 4.44 9.82 9.9s-4.4 10.26-9.82 10.26Zm5.38-7.4c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.79-1.47-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.44-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.09 3.2 5.07 4.48.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z"/></svg>
+  <span class="wa-label">Order on WhatsApp</span>
+</a>
+
+<!-- ===== SIZZLE SOUND: off by default, bottom-left corner. The sound is generated in effects.js ===== -->
+<button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" aria-label="Play tawa sizzle sound">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M4 9h4l5-4v14l-5-4H4z"/>
+    <path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>
+    <path class="mute" d="M17 9l5 6M22 9l-5 6"/>
+  </svg>
+  <span class="sound-label">Sizzle</span>
+</button>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "name": "Farid Seekh Kabab Center",
+  "short_name": "Farid Kabab",
+  "description": "Seekh kabab & paratha in Jogeshwari West, Mumbai. Same taste since 1992. Open daily 5 PM – 1 AM.",
+  "lang": "en-IN",
+  "start_url": "./?source=app",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e0b09",
+  "theme_color": "#0e0b09",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    { "src": "images/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "images/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "images/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find us",
+      "short_name": "Find us",
+      "description": "Address, map, hours and phone",
+      "url": "./?source=app-shortcut#visit",
+      "icons": [{ "src": "images/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "What's on the plate",
+      "short_name": "The plate",
+      "url": "./?source=app-shortcut#plate",
+      "icons": [{ "src": "images/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

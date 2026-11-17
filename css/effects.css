@@ -1,0 +1,295 @@
+/* =====================================================================
+   Farid Seekh Kabab Center — extra animations & 3D effects
+   ---------------------------------------------------------------------
+   Loaded after styles.css. Behaviour lives in js/sections.js and js/effects.js.
+
+   Contents
+     1. Hero: ember headline + heat shimmer
+     2. The Plate: 3D stage + labels popping in
+     3. Craft: year counter, scroll zoom, stamp slam
+     4. How to eat: 3D card flip + progress line
+     5. Closing: glowing "hot." with sparks
+     6. Buttons: heat glow on hover / tap
+     7. Ember cursor + spark trail
+     8. Sizzle sound button
+     9. Smooth-scroll helper rules
+    10. Reduced motion
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. HERO
+   --------------------------------------------------------------------- */
+
+/* Each letter of "Charred outside." starts white-hot and cools to cream.
+   fill-mode "backwards" means that after the animation the normal colour
+   applies again, so the hover re-heat below still works. */
+.ember-text .word { display: inline-block; white-space: nowrap; }
+.ember-text .ch {
+  display: inline-block;
+  animation: ember-cool 1.5s cubic-bezier(.2,.7,.2,1) calc(0.1s + var(--i) * 0.045s) backwards;
+  transition: color .8s ease, text-shadow .8s ease;
+}
+@keyframes ember-cool {
+  0%   { opacity: 0; transform: translateY(.25em) scale(1.08); color: #fff4d6;
+         text-shadow: 0 0 .15em #ffd08a, 0 0 .5em #ff7a2e, 0 0 1.1em #ff3d00; }
+  25%  { opacity: 1; transform: none; }
+  55%  { color: #ffc178; text-shadow: 0 0 .12em rgba(255,150,60,.7), 0 0 .45em rgba(255,80,0,.4); }
+  100% { color: var(--ink); text-shadow: 0 0 0 rgba(255,80,0,0); }
+}
+/* Hovering a letter heats it up again (it cools slowly when the mouse leaves) */
+.ember-text .ch:hover {
+  color: #ffd9a0; text-shadow: 0 0 .12em #ffb347, 0 0 .4em #ff6a00;
+  transition-duration: .05s;
+}
+/* "Soft within." rises in after the letters (needs inline-block to move) */
+.hero h1 em { display: inline-block; }
+
+/* Heat shimmer: the SVG filter #heat (in index.html) ripples the photo.
+   Desktop only — it's too heavy for phones. */
+.svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+@media (min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .hero-media img { filter: url(#heat) brightness(0.62) saturate(1.15) contrast(1.05); }
+}
+
+
+/* ---------------------------------------------------------------------
+   2. THE PLATE — 3D stage + labels popping in
+   --------------------------------------------------------------------- */
+
+/* Perspective for the photo; js/sections.js sets its rotateX/scale on scroll */
+.plate-stage { perspective: 1400px; perspective-origin: 50% 0%; }
+.plate-map { transform-origin: 50% 100%; will-change: transform, opacity; }
+
+/* Labels start hidden and pop in one after another (--n = 0..4) */
+.tag { opacity: 0; scale: 0.4; }
+.plate-map.tags-in .tag { animation: tag-pop .55s cubic-bezier(.2,1.5,.4,1) calc(var(--n) * 0.12s) forwards; }
+@keyframes tag-pop {
+  from { opacity: 0; scale: 0.4; }
+  to   { opacity: 1; scale: 1; }
+}
+/* Hovering a label lifts it slightly (uses `translate` so it doesn't clash with its position) */
+.tag { transition: translate var(--fast) var(--ease-out); }
+.tag:hover, .tag.open { translate: 0 -4px; }
+.tag:hover b, .tag.open b { box-shadow: 0 8px 18px -4px rgba(255,122,46,0.7); }
+
+
+/* ---------------------------------------------------------------------
+   3. CRAFT — year counter, scroll zoom, stamp slam
+   --------------------------------------------------------------------- */
+
+/* 1992 → 2026 counter */
+.year-roll {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 14px 18px;
+  margin-top: 30px; padding: 18px 22px;
+  border-radius: 20px; border: 1px solid var(--line); background: var(--surface);
+  width: fit-content; max-width: 100%;
+}
+.yr-num {
+  font-family: "Fraunces", serif; font-weight: 800; line-height: 1;
+  font-size: clamp(34px, 3.8vw, 54px); letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;   /* digits same width, so the number doesn't jiggle */
+  color: var(--muted);
+}
+.yr-now { color: var(--ember-hot); }
+.yr-now.rolling { filter: blur(0.6px); }
+.yr-now.landed { animation: yr-land .5s cubic-bezier(.2,1.6,.4,1); text-shadow: 0 0 24px rgba(255,140,40,0.45); }
+@keyframes yr-land { 0% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.yr-arrow { color: var(--ember); font-size: 28px; }
+.yr-label { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.yr-label b { display: block; font-family: "Fraunces", serif; font-size: 20px; font-weight: 600; color: var(--ink); }
+
+
+/* Stamp: hidden, then slams in; the frame shakes on impact */
+.stamp { opacity: 0; transform: rotate(-30deg) scale(2.6); }
+.art.stamped .stamp { animation: stamp-slam .55s cubic-bezier(.3,1.5,.5,1) forwards; }
+@keyframes stamp-slam {
+  0%   { opacity: 0; transform: rotate(-30deg) scale(2.6); }
+  55%  { opacity: 1; transform: rotate(-8deg) scale(.9); }
+  100% { opacity: 1; transform: rotate(-10deg) scale(1); }
+}
+/* Ring of "dust" bursting out from the stamp */
+.stamp::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  border: 2px solid rgba(255,179,71,0.8); opacity: 0;
+}
+.art.stamped .stamp::after { animation: stamp-ring .6s ease-out .3s; }
+@keyframes stamp-ring { from { opacity: 1; transform: scale(.9); } to { opacity: 0; transform: scale(1.7); } }
+.art.stamped { animation: frame-shake .35s ease-out .3s; }
+@keyframes frame-shake {
+  20% { translate: -4px 2px; } 40% { translate: 3px -2px; } 60% { translate: -2px 1px; } 80% { translate: 1px 0; } 100% { translate: 0 0; }
+}
+
+
+/* ---------------------------------------------------------------------
+   4. HOW TO EAT — 3D card flip + progress line
+   Cards start face-down (.unflipped, added by js/sections.js) and flip over.
+   --------------------------------------------------------------------- */
+.ritual-grid { perspective: 1400px; }
+.step {
+  transform-style: preserve-3d;
+  overflow: visible;   /* overflow:hidden would flatten the 3D flip */
+  transition: opacity .5s var(--ease-out), transform var(--med) var(--ease-out),
+              border-color var(--fast), rotate .45s cubic-bezier(.3,1.2,.5,1);   /* flip speed */
+}
+.step.unflipped { rotate: y 180deg; }
+/* No fade-in on these cards: any transparency makes browsers flatten the 3D,
+   which hides both faces. They slide up and flip instead. */
+.step.reveal { opacity: 1; }
+/* Swap which face is showing ~0.11s into the flip (when the card is edge-on).
+   Doing this with opacity, as well as backface-visibility, makes the flip
+   reliable in every browser (no mirrored text). */
+.step > :not(.step-back) { transition: opacity 0s .11s; }
+.step.unflipped > :not(.step-back) { opacity: 0; }
+.step-back { opacity: 0; transition: opacity 0s .11s; }
+.step.unflipped .step-back { opacity: 1; }
+.step .big { top: 4px; }
+/* Front content hides when it faces away */
+.step > :not(.step-back) { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+/* Back face: orange card with the step number */
+.step-back {
+  position: absolute; inset: -1px; border-radius: 24px;
+  display: grid; place-content: center; text-align: center;
+  background: radial-gradient(120% 90% at 30% 20%, #ffb347 0%, #ff7a2e 45%, #b8400c 100%);
+  color: #1b0d04;
+  transform: rotateY(180deg) translateZ(1px);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+}
+.step-back b { font-family: "Fraunces", serif; font-style: italic; font-weight: 800; font-size: 96px; line-height: .9; }
+.step-back small { font-size: 12px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; margin-top: 8px; }
+
+/* Progress line above the cards (desktop, 4 cards in a row) */
+.ritual-track { display: none; }
+@media (min-width: 961px) {
+  .ritual-track {
+    display: block; position: relative; height: 2px;
+    margin: 56px 12.5% 0;               /* runs from the centre of card 1 to the centre of card 4 */
+    background: var(--line); border-radius: 2px;
+  }
+  .ritual-fill {
+    position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(90deg, var(--ember-hot), var(--ember));
+    box-shadow: 0 0 12px rgba(255,122,46,0.8);
+    transform-origin: left center;
+    transform: scaleX(var(--progress, 0));
+    transition: transform .6s var(--ease-out);
+  }
+  .ritual-track i {
+    position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-2); border: 2px solid rgba(255,230,200,0.25);
+    transition: background .3s, border-color .3s, box-shadow .3s;
+  }
+  .ritual-track i:nth-of-type(1) { left: 0; }
+  .ritual-track i:nth-of-type(2) { left: 33.333%; }
+  .ritual-track i:nth-of-type(3) { left: 66.666%; }
+  .ritual-track i:nth-of-type(4) { left: 100%; }
+  .ritual-track i.on { background: var(--ember); border-color: var(--ember-hot); box-shadow: 0 0 14px var(--ember); }
+  .ritual-track + .ritual-grid { margin-top: 30px; }
+}
+
+
+/* ---------------------------------------------------------------------
+   5. CLOSING — "hot." glows like neon, with sparks rising off it
+   --------------------------------------------------------------------- */
+.hot-word { position: relative; display: inline-block; animation: neon 4s linear infinite; }
+@keyframes neon {
+  0%, 17%, 21%, 24%, 52%, 56%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 .06em #ffe0a8, 0 0 .25em #ff9a3d, 0 0 .6em #ff5a00, 0 0 1.2em rgba(255,80,0,.5);
+  }
+  19%, 23%, 54% { opacity: .78; text-shadow: 0 0 .1em rgba(255,120,40,.4); }   /* quick flickers */
+}
+.sparks { position: absolute; left: 0; right: 0; top: 10%; height: 0; pointer-events: none; }
+.sparks i {
+  position: absolute; left: var(--x); top: 0; width: 5px; height: 5px; border-radius: 50%;
+  background: #ffd27a; box-shadow: 0 0 8px 2px #ff7a2e;
+  opacity: 0; animation: spark-up 2.2s ease-out var(--d) infinite;
+}
+.sparks i:nth-child(odd) { --dx: -14px; }
+.sparks i:nth-child(even) { --dx: 12px; }
+@keyframes spark-up {
+  0%   { opacity: 0; transform: translate(0, 0) scale(1); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), -110px) scale(.3); }
+}
+
+
+/* ---------------------------------------------------------------------
+   6. BUTTONS — heat glow on hover (and on tap for phones)
+   --------------------------------------------------------------------- */
+.btn-fire:hover, .btn-fire:active,
+.pill-cta:hover, .pill-cta:active { animation: heat-pulse 1.1s ease-out infinite; }
+@keyframes heat-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,140,50,0.65), 0 10px 40px -6px rgba(255,110,30,0.9); }
+  100% { box-shadow: 0 0 0 14px rgba(255,140,50,0), 0 10px 40px -6px rgba(255,110,30,0.9); }
+}
+.btn-glass:hover, .btn-glass:active {
+  border-color: rgba(255,140,60,0.75); color: #ffe2bf;
+  box-shadow: 0 0 26px -4px rgba(255,110,30,0.65), inset 0 0 18px -6px rgba(255,110,30,0.55);
+}
+
+
+/* ---------------------------------------------------------------------
+   7. EMBER CURSOR + SPARK TRAIL (mouse only; the normal cursor stays)
+   --------------------------------------------------------------------- */
+#cursorTrail { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 89; pointer-events: none; display: none; }
+.cursor-ember { display: none; }
+.has-ember-cursor #cursorTrail { display: block; }
+.has-ember-cursor .cursor-ember {
+  display: block; position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none;
+  width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,243,208,0.95) 0%, rgba(255,179,71,0.7) 28%, rgba(255,122,46,0.25) 58%, transparent 72%);
+  mix-blend-mode: screen; opacity: 0;
+  transition: opacity .3s, width .25s var(--ease-out), height .25s var(--ease-out), margin .25s var(--ease-out);
+}
+.has-ember-cursor .cursor-ember.on { opacity: 1; }
+.has-ember-cursor .cursor-ember.hot { width: 56px; height: 56px; margin: -28px 0 0 -28px; }   /* over links/buttons */
+
+
+/* ---------------------------------------------------------------------
+   8. SIZZLE SOUND BUTTON — bottom-left corner, off by default
+   --------------------------------------------------------------------- */
+.sound-toggle {
+  position: fixed; left: 20px; bottom: 20px; z-index: 60;
+  display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px 0 14px;
+  border-radius: 999px; cursor: pointer;
+  font: 600 14px "Inter", sans-serif; color: var(--muted);
+  background: rgba(20,15,12,0.88); border: 1px solid var(--line);
+  transition: color var(--fast), border-color var(--fast), background var(--fast);
+}
+.sound-toggle:hover { color: var(--ink); border-color: rgba(255,140,60,0.5); }
+.sound-toggle .wave { display: none; }
+.sound-toggle.on { color: #1b0d04; background: var(--ember); border-color: var(--ember); }
+.sound-toggle.on .wave { display: inline; animation: wave 1s ease-in-out infinite alternate; }
+.sound-toggle.on .mute { display: none; }
+@keyframes wave { from { opacity: .4; } to { opacity: 1; } }
+/* Clear of the iPhone home bar when opened as an installed app */
+.sound-toggle { bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px)); }
+@media (max-width: 640px) {
+  .sound-toggle { left: 16px; bottom: max(16px, calc(env(safe-area-inset-bottom) + 10px)); width: 48px; padding: 0; justify-content: center; }
+  .sound-label { display: none; }
+  /* Keep the map button clear of both corner buttons */
+  .map-open { left: 50%; right: auto; transform: translateX(-50%); white-space: nowrap; }
+}
+
+
+/* ---------------------------------------------------------------------
+   9. SMOOTH-SCROLL HELPERS (rules the Lenis library expects)
+   --------------------------------------------------------------------- */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }   /* map doesn't grab the wheel mid-scroll */
+
+
+/* ---------------------------------------------------------------------
+   10. REDUCED MOTION — show everything in its final state
+   --------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .tag { opacity: 1; scale: 1; }
+  .stamp { opacity: 1; transform: rotate(-10deg); }
+  .step.unflipped { rotate: none; }
+  .ritual-fill { transform: scaleX(1); }
+}

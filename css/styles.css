@@ -1,0 +1,795 @@
+/* =====================================================================
+   Farid Seekh Kabab Center — stylesheet
+   ---------------------------------------------------------------------
+   Contents
+     1. Base: background, colour tokens, reset, shared helpers
+     2. Grain overlay
+     3. Navigation (floating pill)
+     4. Hero
+     5. Entrance + scroll-reveal animations
+     6. Marquee band
+     7. The Plate (one big photo with labels)
+     8. Craft (text + seekh close-up)
+     9. How to eat
+    10. Visit / closing section
+    11. Footer
+    12. Reduced motion
+    13. Fire layer (flames + embers behind the whole site)
+    14. WhatsApp button (bottom-right corner)
+    15. Mobile & tablet fixes (menu, spacing, tap sizes)
+    16. Open-now pill (hero) + map
+    17. How-to-eat animations
+    18. Installed app (safe areas, "Install app" button, iPhone how-to)
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. BASE
+   --------------------------------------------------------------------- */
+
+/* Set the dark background first so the page never flashes white while loading */
+html, body { background: #0e0b09; }
+/* body is transparent so the fire layer behind the page (z-index: -1) can show through;
+   the dark colour still comes from <html> */
+body { background: transparent; }
+
+/* Design tokens: change colours, easing and widths in one place */
+:root {
+  --bg: #0e0b09;                         /* page background (charcoal) */
+  --bg-2: #15110e;                       /* slightly lighter background */
+  --surface: rgba(255, 240, 220, 0.045); /* card fill */
+  --line: rgba(255, 230, 200, 0.12);     /* hairline borders */
+  --ink: #f6eee3;                        /* main text */
+  --muted: #b9ab99;                      /* secondary text */
+  --ember: #ff7a2e;                      /* main accent (fire orange) */
+  --ember-hot: #ffb347;                  /* lighter accent (saffron) */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --fast: .2s;                           /* hover / colour changes */
+  --med: .35s;                           /* movement on hover */
+  --max: 1240px;                         /* max content width */
+  --gutter: clamp(16px, 4vw, 48px);      /* side padding */
+}
+
+/* Simple reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img, svg, canvas { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+
+/* Visible keyboard focus */
+:focus-visible { outline: 2px solid var(--ember-hot); outline-offset: 4px; border-radius: 6px; }
+
+/* Centred content container */
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* Small uppercase label with a line before it */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 12px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ember-hot);
+}
+.eyebrow::before { content: ""; width: 32px; height: 1px; background: currentColor; }
+
+/* Section spacing and section headings */
+section.block { position: relative; padding: clamp(96px, 14vh, 160px) 0; }
+.section-head { max-width: 720px; margin-bottom: 56px; }
+.h2 {
+  font-family: "Fraunces", serif; font-weight: 800;
+  font-size: clamp(42px, 5.4vw, 84px); line-height: 0.95; letter-spacing: -0.03em;
+  margin: 18px 0 22px;
+}
+.h2 em { font-style: italic; font-weight: 400; color: var(--ember-hot); }
+.sub { color: var(--muted); font-size: 18px; max-width: 30em; }
+
+/* Buttons: orange "fire" button and see-through "glass" button */
+.btn {
+  display: inline-flex; align-items: center; gap: 12px; min-height: 52px;
+  padding: 0 10px 0 26px; border-radius: 999px; font-weight: 600; font-size: 15px;
+  transition: transform var(--med) var(--ease-out), background var(--fast), box-shadow var(--fast);
+}
+.btn .chip {   /* round arrow icon inside the button */
+  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  transition: transform var(--med) var(--ease-out);
+}
+.btn:hover .chip { transform: rotate(-45deg); }
+.btn-fire { background: var(--ember); color: #1b0d04; box-shadow: 0 10px 40px -8px rgba(255,122,46,0.7); }
+.btn-fire .chip { background: #1b0d04; color: var(--ember-hot); }
+.btn-fire:hover { background: var(--ember-hot); transform: translateY(-2px); }
+.btn-glass {
+  /* Solid tint instead of a background blur: blurring over the moving fire costs a lot every frame */
+  background: rgba(30,23,19,0.82); border: 1px solid var(--line); padding-right: 26px;
+}
+.btn-glass:hover { background: rgba(48,37,30,0.9); }
+
+
+/* ---------------------------------------------------------------------
+   2. GRAIN OVERLAY — subtle film grain over the whole page
+   --------------------------------------------------------------------- */
+.grain {
+  position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Kept static on purpose: animating a full-screen layer makes scrolling stutter */
+}
+
+
+/* ---------------------------------------------------------------------
+   3. NAVIGATION — frosted pill fixed at the top
+   --------------------------------------------------------------------- */
+.nav {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 50;
+  width: min(calc(100% - 32px), 980px);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 8px 8px 8px 22px; border-radius: 999px;
+  background: rgba(20, 15, 12, 0.55);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(12px) saturate(1.3); -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 20px 40px -20px rgba(0,0,0,0.6);
+}
+.brand { font-family: "Fraunces", serif; font-weight: 800; font-size: 19px; letter-spacing: -0.01em; white-space: nowrap; }
+.brand i { font-style: italic; font-weight: 400; color: var(--ember-hot); }
+.nav ul { display: flex; gap: 30px; list-style: none; font-size: 14px; color: var(--muted); }
+.nav ul a { transition: color var(--fast); }
+.nav ul a:hover { color: var(--ink); }
+.nav .pill-cta {
+  background: var(--ember); color: #1b0d04; font-weight: 600; font-size: 14px;
+  padding: 11px 20px; border-radius: 999px; white-space: nowrap;
+  transition: background var(--fast), transform var(--fast) var(--ease-out);
+}
+.nav .pill-cta:hover { background: var(--ember-hot); transform: translateY(-1px); }
+/* On phones, hide the links and keep only the brand + "Find us" */
+@media (max-width: 760px) { .nav ul { display: none; } }
+
+
+/* ---------------------------------------------------------------------
+   4. HERO — full-screen photo, dark gradient, embers, headline
+   --------------------------------------------------------------------- */
+/* At least one full screen tall, but allowed to grow on short laptop screens
+   so the content never slides up under the fixed nav bar */
+.hero { position: relative; min-height: max(100svh, 640px); overflow: hidden; isolation: isolate; }
+
+/* Background photo (slightly oversized so the mouse parallax never shows edges) */
+.hero-media { position: absolute; inset: -6%; z-index: -3; will-change: transform; }   /* extra room for the 3D tilt */
+/* <picture> wrappers shouldn't affect layout: the <img> inside is styled directly */
+picture { display: contents; }
+.hero-media img {
+  width: 100%; height: 100%; object-fit: cover; object-position: 62% 55%;
+  filter: brightness(0.62) saturate(1.15) contrast(1.05);
+  animation: kenburns 6s var(--ease-out) both;    /* zoom-out on load */
+}
+@keyframes kenburns { from { transform: scale(1.14); } to { transform: scale(1); } }
+
+/* Gradients that darken the left side (for text) and add a warm glow at the bottom */
+.hero-scrim {
+  position: absolute; inset: 0; z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(14,11,9,0.96) 0%, rgba(14,11,9,0.82) 32%, rgba(14,11,9,0.2) 62%, rgba(14,11,9,0.35) 100%),
+    linear-gradient(0deg, rgba(14,11,9,1) 0%, rgba(14,11,9,0) 38%),
+    radial-gradient(120% 60% at 50% 115%, rgba(255,110,30,0.38), transparent 60%);
+}
+
+/* Canvas where js/fire.js draws the rising embers and smoke */
+#embers { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; }
+
+.hero-inner {
+  min-height: max(100svh, 640px); display: flex; flex-direction: column; justify-content: flex-end;
+  padding-top: 120px;                      /* always clears the nav bar (16px gap + 60px bar + breathing room) */
+  padding-bottom: clamp(40px, 9vh, 96px);
+}
+/* Short laptop screens: slightly smaller headline so everything fits on the first screen */
+@media (min-width: 761px) and (max-height: 820px) {
+  .hero h1 { font-size: clamp(52px, min(7.4vw, 12vh), 120px); margin: 14px 0 18px; }
+  .hero .lede { font-size: 16px; }
+  .hero-row { margin-top: 24px; }
+  .hero-meta { margin-top: 28px; padding-top: 16px; }
+  .hero-inner { padding-bottom: 36px; }
+}
+.hero h1 {
+  font-family: "Fraunces", serif; font-weight: 900;
+  font-size: clamp(54px, 9.2vw, 148px); line-height: 0.9; letter-spacing: -0.035em;
+  margin: 22px 0 26px; max-width: 11ch;
+}
+/* "Soft within." in an orange gradient */
+.hero h1 em {
+  font-style: italic; font-weight: 400; letter-spacing: -0.02em;
+  background: linear-gradient(100deg, #ffd08a 0%, #ff7a2e 45%, #c43d0c 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero .lede { max-width: 34em; font-size: clamp(16px, 1.3vw, 19px); color: #d6c9b8; }
+.hero-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 34px; }
+
+/* Row of three small facts under the buttons */
+.hero-meta {
+  display: flex; gap: clamp(20px, 4vw, 56px); margin-top: clamp(36px, 6vh, 64px);
+  padding-top: 22px; border-top: 1px solid var(--line); max-width: 640px;
+}
+.hero-meta div { font-size: 13px; color: var(--muted); }
+.hero-meta b {
+  display: block; font-family: "Fraunces", serif; font-size: clamp(26px, 2.6vw, 36px);
+  font-weight: 600; color: var(--ink); line-height: 1.1;
+}
+
+/* Vertical "Scroll" hint on the right */
+.scroll-cue {
+  position: absolute; right: var(--gutter); bottom: clamp(40px, 9vh, 96px);
+  writing-mode: vertical-rl; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 14px;
+}
+.scroll-cue::after {
+  content: ""; width: 1px; height: 64px; background: linear-gradient(var(--ember), transparent);
+  animation: drip 2s var(--ease-out) infinite;
+}
+@keyframes drip {
+  from { transform: scaleY(0); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform-origin: bottom; } to { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* Phone layout: darken from the bottom instead of the left */
+@media (max-width: 760px) {
+  .hero-scrim {
+    background:
+      linear-gradient(0deg, rgba(14,11,9,1) 0%, rgba(14,11,9,0.88) 45%, rgba(14,11,9,0.25) 80%, rgba(14,11,9,0.5) 100%),
+      radial-gradient(120% 50% at 50% 110%, rgba(255,110,30,0.35), transparent 60%);
+  }
+  .hero-media img { object-position: 58% 30%; }
+  .scroll-cue { display: none; }
+  .hero-meta { gap: 22px; }
+}
+
+
+/* ---------------------------------------------------------------------
+   5. ANIMATIONS
+   --------------------------------------------------------------------- */
+
+/* Hero entrance: each element rises out of a light blur, one after another (.d1 to .d5).
+   Short duration + small offset keeps it quick without feeling abrupt. */
+.rise { opacity: 0; transform: translateY(16px); filter: blur(4px); animation: rise .6s var(--ease-out) forwards; }
+@keyframes rise { to { opacity: 1; transform: none; filter: blur(0); } }
+.d1 { animation-delay: .05s } .d2 { animation-delay: .12s } .d3 { animation-delay: .19s }
+.d4 { animation-delay: .26s } .d5 { animation-delay: .33s }
+
+/* Scroll reveal: js/core.js adds .in when the element enters the screen */
+.reveal {
+  opacity: 0; transform: translate3d(0, 20px, 0);
+  transition: opacity .5s var(--ease-out), transform .55s var(--ease-out);
+}
+.reveal.in { opacity: 1; transform: none; }
+.reveal.d2 { transition-delay: .06s } .reveal.d3 { transition-delay: .12s } .reveal.d4 { transition-delay: .18s }
+
+
+/* ---------------------------------------------------------------------
+   6. MARQUEE — two crossing bands of words
+   --------------------------------------------------------------------- */
+/* Two bands at opposite angles, crossing near one end like strips of tape.
+   js/sections.js moves the tracks and doubles their content for a seamless loop. */
+.marquee { position: relative; overflow: hidden; padding: clamp(40px, 5vw, 70px) 0; }
+.band { width: 112%; margin-left: -6%; overflow: hidden; }
+.band-a {
+  position: relative; z-index: 1; padding: 20px 0;
+  background: rgba(14,11,9,0.92); border-block: 1px solid var(--line);
+  transform: rotate(-2.5deg);
+  box-shadow: 0 20px 40px -20px rgba(0,0,0,0.8);
+}
+.band-b {
+  position: relative; padding: 12px 0; margin-top: -6px;
+  background: linear-gradient(90deg, #ff8a3d, #ff6a1f 50%, #ff8a3d);
+  transform: rotate(2deg);
+}
+.track { display: flex; width: max-content; will-change: transform; }
+.track span {
+  display: inline-flex; align-items: center; gap: 36px; padding-right: 36px;
+  font-family: "Fraunces", serif; font-style: italic; font-weight: 400;
+  font-size: clamp(36px, 5vw, 72px); line-height: 1; white-space: nowrap;
+}
+/* Every second word is outlined instead of filled */
+.track span:nth-child(even) { color: transparent; -webkit-text-stroke: 1px rgba(246,238,227,0.5); font-style: normal; font-weight: 800; }
+.track svg { width: clamp(44px, 5vw, 70px); flex: none; }
+/* Orange band: smaller, dark text */
+.band-b .track span { font-size: clamp(24px, 3.2vw, 44px); color: #1b0d04; gap: 26px; padding-right: 26px; }
+.band-b .track span:nth-child(even) { -webkit-text-stroke: 1px rgba(27,13,4,0.75); color: transparent; }
+.band-b .track svg { width: clamp(34px, 3.6vw, 52px); }
+
+
+/* ---------------------------------------------------------------------
+   7. THE PLATE — one big photo with a label on each item
+   --------------------------------------------------------------------- */
+
+/* Wide photo: cropped to 16:9 on desktop so it fits on one screen */
+.plate-map {
+  position: relative; aspect-ratio: 16 / 9; border-radius: 28px; overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 40px 80px -40px rgba(0,0,0,0.9);
+}
+.plate-map img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8) saturate(1.1); }
+
+/* One label: numbered dot + name pill. The dot sits exactly on --x / --y. */
+.tag {
+  position: absolute; left: var(--x); top: var(--y);
+  display: flex; align-items: center; gap: 10px;
+  transform: translate(-21px, -50%);
+  background: none; border: 0; padding: 0; color: var(--ink); font: inherit; text-align: left;
+  cursor: pointer;
+}
+.tag b {   /* the numbered dot */
+  position: relative; flex: none;
+  width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ember); color: #1b0d04; font-size: 15px;
+  border: 3px solid rgba(14,11,9,0.85);
+  transition: background var(--fast), transform var(--fast) var(--ease-out);
+}
+.tag b::after {   /* pulsing ring around the dot */
+  content: ""; position: absolute; inset: -8px; border-radius: 50%;
+  border: 2px solid var(--ember); animation: pulse 2.2s infinite;
+}
+@keyframes pulse { from { transform: scale(.8); opacity: .8; } to { transform: scale(1.6); opacity: 0; } }
+.tag-name {   /* the name pill */
+  padding: 8px 14px; border-radius: 999px; white-space: nowrap;
+  font-size: 14px; font-weight: 600;
+  background: rgba(14,11,9,0.86); border: 1px solid var(--line);
+  transition: background var(--fast), color var(--fast), border-color var(--fast);
+}
+/* Description bubble: hidden until the label is hovered, focused or tapped */
+.tag-desc {
+  position: absolute; left: 0; top: calc(100% + 10px); width: 230px;
+  padding: 12px 14px; border-radius: 14px;
+  font-size: 14px; line-height: 1.45; color: #e9dfd2;
+  background: rgba(14,11,9,0.92); border: 1px solid rgba(255,122,46,0.45);
+  box-shadow: 0 16px 40px -12px rgba(0,0,0,0.7);
+  opacity: 0; transform: translateY(-6px); pointer-events: none;
+  transition: opacity var(--fast), transform var(--fast) var(--ease-out);
+}
+.tag:hover, .tag:focus-visible, .tag.open { z-index: 2; }
+.tag:hover .tag-desc, .tag:focus-visible .tag-desc, .tag.open .tag-desc { opacity: 1; transform: none; }
+.tag:hover b, .tag.open b { background: var(--ember-hot); transform: scale(1.08); }
+.tag:hover .tag-name, .tag.open .tag-name { background: var(--ember); color: #1b0d04; border-color: var(--ember); }
+
+/* Labels near the right edge put the name (and bubble) on the left of the dot */
+.tag-left { flex-direction: row-reverse; transform: translate(calc(-100% + 21px), -50%); }
+.tag-left .tag-desc { left: auto; right: 0; }
+
+/* Labels near the bottom open their bubble upwards so it isn't cut off */
+.tag[data-i="0"] .tag-desc, .tag[data-i="4"] .tag-desc { top: auto; bottom: calc(100% + 10px); }
+
+/* The numbered list under the photo is only for phones */
+.plate-list { display: none; }
+
+/* Phones: full 4:3 photo, number-only dots, list underneath instead of bubbles */
+@media (max-width: 640px) {
+  .plate-map { aspect-ratio: 4 / 3; border-radius: 20px; }
+  .tag, .tag-left { left: var(--mx); top: var(--my); transform: translate(-50%, -50%); cursor: default; }
+  .tag-name, .tag-desc { display: none; }
+  .tag b { width: 32px; height: 32px; font-size: 13px; }
+
+  .plate-list { display: grid; gap: 0; list-style: none; margin-top: 18px; border-top: 1px solid var(--line); }
+  .plate-list li { display: grid; grid-template-columns: 40px 1fr; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .plate-list b {
+    width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--ember); color: #1b0d04; font-size: 13px; margin-top: 2px;
+  }
+  .plate-list h3 { font-family: "Fraunces", serif; font-size: 20px; font-weight: 600; line-height: 1.2; }
+  .plate-list p { color: var(--muted); font-size: 14px; margin-top: 2px; }
+}
+
+
+/* ---------------------------------------------------------------------
+   8. CRAFT — text on the left, real seekh close-up on the right
+   --------------------------------------------------------------------- */
+.craft-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(40px, 6vw, 96px); align-items: center; }
+
+/* Numbered steps list */
+.beats { list-style: none; margin-top: 40px; border-top: 1px solid var(--line); }
+.beats li { display: grid; grid-template-columns: 64px 1fr; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.beats .k { font-family: "Fraunces", serif; font-style: italic; color: var(--ember); font-size: 22px; }
+.beats h3 { font-family: "Fraunces", serif; font-size: 24px; font-weight: 600; line-height: 1.2; }
+.beats p { color: var(--muted); font-size: 15px; margin-top: 4px; }
+
+/* Photo frame (portrait, 4:5) */
+.art {
+  position: relative; aspect-ratio: 4 / 5; border-radius: 32px; overflow: hidden;
+  border: 1px solid var(--line); background: #000;
+}
+/* The photo is shown at 200% height and shifted so the kebabs fill the frame */
+.art-photo {
+  position: absolute; max-width: none;
+  height: 200%; width: auto;
+  left: -138%; top: -86%;
+  filter: saturate(1.15) contrast(1.05);
+  transform: scale(var(--zoom, 1));   /* zooms in as you scroll (js/sections.js sets --zoom) */
+  transform-origin: 60% 50%;
+  will-change: transform;
+}
+/* Warm glow from below + dark vignette, like the kebab is over the fire */
+.art-glow {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(90% 50% at 50% 110%, rgba(255,110,30,0.55), transparent 65%),
+    radial-gradient(120% 90% at 50% 40%, transparent 50%, rgba(14,11,9,0.75) 100%);
+  mix-blend-mode: normal;
+}
+#embers3 { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* Round "Since 1992" stamp in the bottom-right corner of the photo */
+.stamp {
+  position: absolute; right: 22px; bottom: 22px;
+  width: 112px; height: 112px; border-radius: 50%;
+  display: grid; place-content: center; text-align: center;
+  font-family: "Fraunces", serif; font-weight: 800; font-size: 30px; line-height: 1;
+  color: #1b0d04; background: var(--ember-hot);
+  box-shadow: 0 0 0 6px rgba(255,179,71,0.25), 0 20px 40px -10px rgba(0,0,0,0.6);
+  transform: rotate(-10deg);
+}
+.stamp small {
+  display: block; margin-bottom: 4px;
+  font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
+}
+@media (max-width: 640px) { .stamp { width: 88px; height: 88px; font-size: 24px; } }
+.art-tag {
+  position: absolute; left: 22px; top: 22px; padding: 8px 14px; border-radius: 999px;
+  font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink);
+  background: rgba(14,11,9,0.7); border: 1px solid var(--line);
+}
+@media (max-width: 900px) {
+  .craft-grid { grid-template-columns: 1fr; }
+  .art { order: -1; aspect-ratio: 4 / 3.4; }   /* photo above the text on phones */
+  .art-photo { height: 230%; left: -110%; top: -110%; }
+}
+
+
+/* ---------------------------------------------------------------------
+   9. HOW TO EAT — four step cards
+   --------------------------------------------------------------------- */
+.ritual-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 56px; }
+.step {
+  position: relative; padding: 30px 26px 32px; border-radius: 24px; border: 1px solid var(--line); background: var(--surface);
+  overflow: hidden; transition: transform var(--med) var(--ease-out), border-color var(--fast);
+}
+.step:hover { transform: translateY(-4px); border-color: rgba(255,122,46,0.45); }
+.step .big {   /* large faint step number in the corner */
+  position: absolute; right: 14px; top: -6px;
+  font-family: "Fraunces", serif; font-style: italic; font-size: 110px; line-height: 1; color: rgba(255,122,46,0.1);
+}
+.step svg { width: 72px; height: 72px; margin-bottom: 28px; overflow: visible; }
+.step h3 { font-family: "Fraunces", serif; font-size: 28px; font-weight: 600; }
+.step p { color: var(--muted); font-size: 15px; margin-top: 6px; }
+@media (max-width: 960px) { .ritual-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .ritual-grid { grid-template-columns: 1fr; } }
+
+
+/* ---------------------------------------------------------------------
+   10. VISIT — closing call to action over embers
+   --------------------------------------------------------------------- */
+.visit {
+  position: relative; overflow: hidden; isolation: isolate; text-align: center;
+  padding: clamp(120px, 20vh, 200px) 0 clamp(80px, 12vh, 120px);
+}
+.visit::before {   /* fire glow rising from the bottom */
+  content: ""; position: absolute; inset: 0; z-index: -2;
+  background: radial-gradient(80% 60% at 50% 110%, rgba(255,100,20,0.45), rgba(120,30,0,0.15) 45%, transparent 70%);
+}
+.visit .h2 { font-size: clamp(56px, 10vw, 168px); margin: 18px auto 26px; max-width: 10ch; }
+.visit .sub { margin: 0 auto; }
+.visit .hero-row { justify-content: center; }
+
+/* Address / hours / phone cards */
+.info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 80px; text-align: left; }
+.info {
+  padding: 24px 26px; border-radius: 20px; border: 1px solid var(--line); background: rgba(20,15,12,0.88);
+}
+.info .label { font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--ember-hot); }
+.info .v { font-family: "Fraunces", serif; font-size: 22px; font-weight: 600; margin-top: 8px; }
+.info a.v { display: inline-flex; gap: 8px; align-items: center; border-bottom: 1px solid rgba(255,122,46,0.5); }
+.info address.v { font-style: normal; font-size: 19px; line-height: 1.35; }   /* full address, slightly smaller */
+.info .map-link {   /* "Open in Google Maps" link under the address */
+  display: inline-block; margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--ember-hot);
+  border-bottom: 1px solid rgba(255,179,71,0.5);
+}
+.info-row { grid-template-columns: 1.5fr 1fr 1fr; }   /* address card is wider */
+
+/* "Open now" / "Closed now" pill on the hours card */
+.open-badge {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;
+  padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+  background: rgba(255,240,220,0.08); border: 1px solid var(--line); color: var(--muted);
+}
+.open-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.open-badge.is-open { color: #7fdc8a; border-color: rgba(127,220,138,0.4); }
+.open-badge.is-closed { color: #ff8a6b; border-color: rgba(255,138,107,0.4); }
+@media (max-width: 760px) { .info-row { grid-template-columns: 1fr; } }
+
+
+/* ---------------------------------------------------------------------
+   11. FOOTER
+   --------------------------------------------------------------------- */
+footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 13px; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+
+/* ---------------------------------------------------------------------
+   12. REDUCED MOTION — respect visitors who turn animations off
+   --------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .rise, .reveal { opacity: 1; transform: none; filter: none; }
+  html { scroll-behavior: auto; }
+}
+
+
+/* ---------------------------------------------------------------------
+   13. FIRE LAYER — fixed behind every section
+   --------------------------------------------------------------------- */
+.fire-layer {
+  position: fixed; inset: 0; z-index: -1;
+  width: 100%; height: 100%; pointer-events: none;
+}
+/* Flames are drawn at low resolution and scaled up, which softens them;
+   a touch of blur finishes the glow */
+#flames { filter: blur(6px) saturate(1.2); opacity: .5; }   /* lower opacity = softer flames */
+
+
+/* ---------------------------------------------------------------------
+   14. WHATSAPP BUTTON — fixed to the bottom-right corner on every page
+   --------------------------------------------------------------------- */
+.wa-float {
+  position: fixed; right: 20px; bottom: 20px; z-index: 60;   /* above the nav (50) */
+  display: flex; align-items: center; gap: 0;
+  height: 60px; min-width: 60px; padding: 0 15px; border-radius: 999px;
+  background: #25d366; color: #fff;
+  box-shadow: 0 12px 30px -6px rgba(37,211,102,0.55), 0 4px 12px rgba(0,0,0,0.35);
+  transition: transform var(--fast) var(--ease-out), box-shadow var(--fast), gap var(--med) var(--ease-out);
+}
+.wa-float svg { flex: none; }
+/* The text label slides out on hover (desktop) */
+.wa-label {
+  max-width: 0; overflow: hidden; white-space: nowrap; font-weight: 600; font-size: 15px;
+  transition: max-width var(--med) var(--ease-out);
+}
+.wa-float:hover { transform: translateY(-2px); gap: 10px; box-shadow: 0 16px 36px -6px rgba(37,211,102,0.7), 0 4px 12px rgba(0,0,0,0.35); }
+.wa-float:hover .wa-label { max-width: 200px; }
+/* Soft pulsing ring to draw the eye */
+.wa-float::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(37,211,102,0.6); animation: wa-ring 2.4s infinite;
+}
+@keyframes wa-ring { 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+@media (max-width: 640px) { .wa-float { right: 16px; bottom: 16px; height: 56px; min-width: 56px; padding: 0 13px; } }
+
+
+/* ---------------------------------------------------------------------
+   15. MOBILE & TABLET FIXES
+   --------------------------------------------------------------------- */
+
+/* Helpers: .hide-sm disappears on phones, .show-sm only appears on phones */
+.show-sm { display: none; }
+@media (max-width: 640px) {
+  .hide-sm { display: none; }
+  .show-sm { display: inline; }
+}
+
+/* --- Menu: desktop shows the link row; phones get a menu button + drop-down --- */
+.nav-actions { display: flex; align-items: center; gap: 8px; }
+.nav-mobile-only { display: none; }
+.burger {
+  display: none;   /* hidden on desktop */
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,240,220,0.08); border: 1px solid var(--line);
+  flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  cursor: pointer;
+}
+.burger span { width: 18px; height: 2px; border-radius: 2px; background: var(--ink); transition: transform var(--med) var(--ease-out), opacity var(--fast); }
+/* Three lines become an X when the menu is open */
+.nav.menu-open .burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav.menu-open .burger span:nth-child(2) { opacity: 0; }
+.nav.menu-open .burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 760px) {
+  .burger { display: flex; }
+  .nav { padding: 6px 6px 6px 18px; }
+  .nav .pill-cta { padding: 11px 16px; }
+  /* Drop-down panel under the nav pill */
+  .nav ul {
+    display: flex; flex-direction: column; gap: 0;
+    position: absolute; left: 0; right: 0; top: calc(100% + 8px);
+    padding: 8px; border-radius: 24px;
+    background: rgba(20, 15, 12, 0.97); border: 1px solid var(--line);
+    box-shadow: 0 24px 48px -16px rgba(0,0,0,0.7);
+    opacity: 0; transform: translateY(-8px); pointer-events: none;
+    transition: opacity var(--fast), transform var(--fast) var(--ease-out);
+  }
+  .nav.menu-open ul { opacity: 1; transform: none; pointer-events: auto; }
+  .nav ul a { display: block; padding: 14px 16px; border-radius: 14px; font-size: 17px; color: var(--ink); }
+  .nav ul a:active { background: rgba(255,240,220,0.08); }
+  .nav-mobile-only { display: block; }
+}
+@media (max-width: 360px) { .brand { font-size: 17px; } .nav .pill-cta { padding: 10px 12px; font-size: 13px; } }
+
+/* --- Phones: hero fits the screen and clears the nav bar --- */
+@media (max-width: 640px) {
+  .hero { height: auto; min-height: 100svh; }
+  .hero-inner { padding-top: 110px; padding-bottom: 92px; min-height: 100svh; }   /* bottom room for the WhatsApp button */
+  .hero h1 { margin: 16px 0 18px; }
+  .hero-row { margin-top: 26px; }
+  .hero-row .btn { flex: 1 1 auto; justify-content: space-between; }
+  .hero-meta { gap: 0; justify-content: space-between; margin-top: 32px; }
+  .hero-meta b { font-size: 22px; white-space: nowrap; }   /* keeps "5 PM–1 AM" on one line */
+  .hero-meta div { font-size: 12px; }
+}
+
+/* --- Phones: tighter gaps between sections --- */
+@media (max-width: 640px) {
+  section.block { padding: 72px 0; }
+  .section-head { margin-bottom: 32px; }
+  .visit { padding: 88px 0 64px; }
+  .info-row { margin-top: 48px; }
+  .ritual-grid { margin-top: 32px; }
+  .step svg { margin-bottom: 20px; }
+}
+
+/* --- Tablet: contact cards as address on top, phone + hours side by side --- */
+@media (min-width: 641px) and (max-width: 1000px) {
+  .info-row { grid-template-columns: 1fr 1fr; }
+  .info-wide { grid-column: 1 / -1; }
+}
+
+/* --- Phones: centre the closing buttons and give them full width --- */
+@media (max-width: 640px) {
+  .visit .hero-row { flex-direction: column; align-items: stretch; max-width: 320px; margin-inline: auto; }
+  .visit .hero-row .btn { justify-content: center; }
+}
+
+/* --- Bigger tap areas for small links (at least 44px tall) --- */
+.info .map-link { padding: 10px 0; margin-top: 2px; border-bottom: 0; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(255,179,71,0.5); }
+.info a.v { padding: 6px 0; }
+footer a { display: inline-block; padding: 10px 0; }
+
+/* --- Small labels: 12px minimum so they stay readable --- */
+.info .label, .art-tag { font-size: 12px; }
+
+/* --- Leave room at the bottom so the WhatsApp button never covers the footer --- */
+footer { padding-bottom: 96px; }
+@media (min-width: 761px) { footer { padding-bottom: 28px; } footer .wrap { padding-right: calc(var(--gutter) + 80px); } }
+
+/* --- Tablet/desktop: taller tap area for the nav links without changing the look --- */
+@media (min-width: 761px) { .nav ul a { display: inline-block; padding: 12px 0; } }
+
+
+/* ---------------------------------------------------------------------
+   16. OPEN-NOW PILL (hero) + MAP
+   --------------------------------------------------------------------- */
+
+/* Small status pill above the hero headline */
+.open-pill {
+  display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+  margin-bottom: 14px; padding: 7px 14px 7px 12px; border-radius: 999px;
+  font-size: 13px; font-weight: 600;
+  background: rgba(14,11,9,0.72); border: 1px solid var(--line);
+}
+.open-pill[hidden] { display: none; }
+.open-pill::before {   /* status dot */
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+}
+.open-pill.is-open { color: #7fdc8a; border-color: rgba(127,220,138,0.4); }
+.open-pill.is-open::before { animation: live 1.6s ease-in-out infinite; }   /* "live" blink */
+.open-pill.is-closed { color: #ffb08f; border-color: rgba(255,138,107,0.35); }
+@keyframes live { 50% { opacity: .35; } }
+
+/* Map card under the contact cards */
+.map-card {
+  position: relative; margin-top: 16px; height: 360px;
+  border-radius: 24px; overflow: hidden; border: 1px solid var(--line);
+  background: #1a1512;
+}
+/* Google's map is light; invert + rotate the hue to make it dark and warm */
+.map-card iframe {
+  width: 100%; height: 100%; border: 0; display: block;
+  filter: invert(0.92) hue-rotate(180deg) saturate(0.6) brightness(0.95) sepia(0.15);
+}
+.map-open {
+  position: absolute; right: 14px; bottom: 14px;
+  padding: 12px 18px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  background: var(--ember); color: #1b0d04;
+  box-shadow: 0 10px 24px -8px rgba(0,0,0,0.6);
+}
+@media (max-width: 640px) {
+  .map-card { height: 280px; border-radius: 20px; }
+  .map-open { left: 14px; right: auto; }   /* keep clear of the WhatsApp button */
+}
+
+
+/* ---------------------------------------------------------------------
+   17. HOW-TO-EAT ANIMATIONS
+   js/core.js adds .play to each card in turn (and again on hover/tap).
+   All parts use transform-box: fill-box so they rotate/scale around themselves.
+   --------------------------------------------------------------------- */
+.sq-lemon, .sq-drop, .tr-left, .tr-right, .ld-onion, .ld-mint, .dp-wrap, .dp-ripple { transform-box: fill-box; transform-origin: center; }
+
+/* 1. Squeeze: lemon squishes, then three drops fall */
+.sq-drop { opacity: 0; }
+.step.play .sq-lemon { animation: squish .9s var(--ease-out); }
+.step.play .sq-drop  { animation: drop .7s ease-in .25s; }
+.step.play .sq-drop-2 { animation-delay: .4s; }
+.step.play .sq-drop-3 { animation-delay: .55s; }
+@keyframes squish { 30% { transform: scale(1.14, .8); } 60% { transform: scale(.96, 1.05); } }
+@keyframes drop { 0% { opacity: 0; transform: translateY(-6px); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
+
+/* 2. Tear: the two halves pull apart, then settle slightly open */
+.tr-left  { transition: transform .5s var(--ease-out); }
+.tr-right { transition: transform .5s var(--ease-out); }
+.step.play .tr-left  { animation: tearL 1s var(--ease-out) forwards; }
+.step.play .tr-right { animation: tearR 1s var(--ease-out) forwards; }
+@keyframes tearL { 0% { transform: none; } 50% { transform: translate(-7px, 2px) rotate(-14deg); } 100% { transform: translate(-4px, 1px) rotate(-8deg); } }
+@keyframes tearR { 0% { transform: none; } 50% { transform: translate(7px, -2px) rotate(14deg); } 100% { transform: translate(4px, -1px) rotate(8deg); } }
+
+/* 3. Load: onion rings and mint drop in from above with a small bounce */
+.step.play .ld-onion { animation: plop .6s var(--ease-out) backwards; }
+.step.play .ld-onion-2 { animation-delay: .15s; }
+.step.play .ld-mint { animation: plop .6s var(--ease-out) .3s backwards; }
+.step.play .ld-mint-2 { animation-delay: .45s; }
+@keyframes plop { 0% { opacity: 0; transform: translateY(-26px); } 70% { opacity: 1; transform: translateY(2px); } 100% { transform: none; } }
+
+/* 4. Dip: the wrap goes down into the bowl and back up; a ripple spreads */
+.dp-ripple { opacity: 0; }
+.step.play .dp-wrap   { animation: dip 1.1s var(--ease-out); }
+.step.play .dp-ripple { animation: ripple .8s ease-out .35s; }
+@keyframes dip { 35% { transform: translateY(14px); } 55% { transform: translateY(14px); } }
+@keyframes ripple { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(2.6); } }
+
+/* Glow on the card while its animation plays */
+.step.play { border-color: rgba(255,122,46,0.5); }
+.step { cursor: pointer; }
+
+
+/* ---------------------------------------------------------------------
+   18. INSTALLED APP — safe areas + "Install app" button + iPhone how-to
+   --------------------------------------------------------------------- */
+
+/* When opened full-screen as an app, keep things clear of the iPhone notch
+   and home bar (env() is 0 everywhere else, so nothing changes in a browser) */
+.nav { top: max(16px, calc(env(safe-area-inset-top) + 8px)); }
+.wa-float { bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px)); }
+.hero-inner { padding-top: calc(120px + env(safe-area-inset-top)); }
+@media (max-width: 640px) {
+  .wa-float { bottom: max(16px, calc(env(safe-area-inset-bottom) + 10px)); }
+  .hero-inner { padding-top: calc(110px + env(safe-area-inset-top)); }
+}
+
+/* "Install app" in the menu looks like the other links */
+.install-btn {
+  font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 12px 0;
+}
+.nav ul .install-btn { color: var(--ember-hot); font-weight: 600; }
+@media (max-width: 760px) {
+  .nav ul .install-btn { display: block; width: 100%; text-align: left; padding: 14px 16px; border-radius: 14px; font-size: 17px; }
+}
+.link-btn { padding: 10px 0; color: var(--ember-hot); text-decoration: underline; text-underline-offset: 3px; }
+
+/* iPhone how-to: bottom sheet over a dark backdrop */
+.install-tip {
+  position: fixed; inset: 0; z-index: 120;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 16px 16px max(16px, env(safe-area-inset-bottom));
+  background: rgba(0,0,0,0.6);
+}
+.install-tip[hidden] { display: none; }
+.install-card {
+  position: relative; width: min(100%, 420px);
+  padding: 28px 24px 24px; border-radius: 24px;
+  background: #1c1612; border: 1px solid var(--line);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.8);
+  animation: sheet-up .35s var(--ease-out);
+}
+@keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } }
+.install-icon { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 14px; }
+.install-card h2 { font-family: "Fraunces", serif; font-size: 24px; font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
+.install-card ol { padding-left: 20px; color: var(--muted); display: grid; gap: 10px; }
+.install-card b { color: var(--ink); }
+.install-card svg { display: inline-block; vertical-align: -4px; color: #4da3ff; margin: 0 2px; }
+.install-close {
+  position: absolute; top: 10px; right: 10px; width: 44px; height: 44px; border-radius: 50%;
+  border: 0; background: rgba(255,240,220,0.08); color: var(--ink); font-size: 24px; cursor: pointer;
+}
