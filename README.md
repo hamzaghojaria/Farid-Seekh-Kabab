@@ -35,11 +35,11 @@ Preview text:
 >
 > Seekh kabab & paratha in Jogeshwari West, Mumbai. Open daily 5 PM – 1 AM. Call 079777 63243.
 
-Before publishing, replace **every** `https://YOUR-WEBSITE.com` in `index.html` with the final public website address. Include any deployment subdirectory, for example `https://hamzaghojaria.github.io/Farid-Seekh-Kabab`. This sets the share image, page URL, canonical URL, and structured-data image consistently.
+Live website: <https://farid-seekh-kabab.onrender.com/>. The share image, page URL, canonical URL, and structured-data image use this Render address. If the domain changes, update these URLs in `index.html`.
 
 Deploy the whole folder to a public HTTPS host. The page and share image must be accessible without login. Preview appearance depends on the receiving app, and previously shared links may retain a cached preview. These tags provide a preview card; they do not automatically insert a separate chat message.
 
-## Publish on GitHub Pages
+## GitHub and Render deployment
 
 Use the GitHub repository `https://github.com/hamzaghojaria/Farid-Seekh-Kabab.git`. For an empty repository, run these commands in PowerShell:
 
@@ -55,7 +55,7 @@ git push -u origin main
 
 Initializing Git inside this folder keeps the project separate from any parent repository.
 
-In the GitHub repository, open **Settings → Pages**, select deployment from a branch, and choose **main** and **/ (root)**. Set the public URL in `index.html` to match your Pages URL before sharing it.
+The live website is hosted on Render at <https://farid-seekh-kabab.onrender.com/>. Push changes to the connected GitHub branch and deploy the latest commit in Render (or let automatic deployment run if enabled).
 
 For later updates:
 
