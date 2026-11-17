@@ -17,7 +17,7 @@
    so returning visitors get the new files instead of the old saved ones.
    ===================================================================== */
 
-const VERSION = 'fsk-v3';
+const VERSION = 'fsk-v4';
 
 const CORE = [
   './',

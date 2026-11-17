@@ -345,10 +345,16 @@ picture { display: contents; }
   opacity: 0; transform: translateY(-6px); pointer-events: none;
   transition: opacity var(--fast), transform var(--fast) var(--ease-out);
 }
-.tag:hover, .tag:focus-visible, .tag.open { z-index: 2; }
-.tag:hover .tag-desc, .tag:focus-visible .tag-desc, .tag.open .tag-desc { opacity: 1; transform: none; }
-.tag:hover b, .tag.open b { background: var(--ember-hot); transform: scale(1.08); }
-.tag:hover .tag-name, .tag.open .tag-name { background: var(--ember); color: #1b0d04; border-color: var(--ember); }
+.tag:focus-visible, .tag.open { z-index: 2; }
+.tag.open .tag-desc { opacity: 1; transform: none; }
+.tag.open b { background: var(--ember-hot); transform: scale(1.08); }
+.tag.open .tag-name { background: var(--ember); color: #1b0d04; border-color: var(--ember); }
+@media (hover: hover) and (pointer: fine) {
+  .tag:hover { z-index: 2; }
+  .tag:hover .tag-desc, .tag:focus-visible .tag-desc { opacity: 1; transform: none; }
+  .tag:hover b { background: var(--ember-hot); transform: scale(1.08); }
+  .tag:hover .tag-name { background: var(--ember); color: #1b0d04; border-color: var(--ember); }
+}
 
 /* Labels near the right edge put the name (and bubble) on the left of the dot */
 .tag-left { flex-direction: row-reverse; transform: translate(calc(-100% + 21px), -50%); }
@@ -360,21 +366,22 @@ picture { display: contents; }
 /* The numbered list under the photo is only for phones */
 .plate-list { display: none; }
 
-/* Phones: full 4:3 photo, number-only dots, list underneath instead of bubbles */
+/* Phones: tap a numbered dot to open the same details as desktop. */
 @media (max-width: 640px) {
   .plate-map { aspect-ratio: 4 / 3; border-radius: 20px; }
-  .tag, .tag-left { left: var(--mx); top: var(--my); transform: translate(-50%, -50%); cursor: default; }
-  .tag-name, .tag-desc { display: none; }
+  .tag, .tag-left { left: var(--mx); top: var(--my); transform: translate(-50%, -50%); width: 44px; height: 44px; justify-content: center; }
+  .tag-name { display: none; }
   .tag b { width: 32px; height: 32px; font-size: 13px; }
-
-  .plate-list { display: grid; gap: 0; list-style: none; margin-top: 18px; border-top: 1px solid var(--line); }
-  .plate-list li { display: grid; grid-template-columns: 40px 1fr; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
-  .plate-list b {
-    width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
-    background: var(--ember); color: #1b0d04; font-size: 13px; margin-top: 2px;
+  .tag-desc { width: min(190px, 65vw); font-size: 13px; padding: 10px 12px; }
+  .tag-desc::before { content: attr(data-title); display: block; margin-bottom: 4px; color: var(--ink); font-weight: 600; }
+  .tag[data-i="0"] .tag-desc { left: auto; right: 0; }
+  .tag[data-i="1"] .tag-desc,
+  .tag[data-i="3"] .tag-desc { left: 50%; right: auto; margin-left: max(-95px, -32.5vw); }
+  .tag[data-i="4"] .tag-desc { left: 0; right: auto; }
+  .tag.open { translate: none; }
+  @media (hover: none) {
+    .tag:hover { translate: none; }
   }
-  .plate-list h3 { font-family: "Fraunces", serif; font-size: 20px; font-weight: 600; line-height: 1.2; }
-  .plate-list p { color: var(--muted); font-size: 14px; margin-top: 2px; }
 }
 
 
